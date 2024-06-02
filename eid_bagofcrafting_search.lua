@@ -1,6 +1,7 @@
 -- Valid values:
 --   0 -> Reset search query after search
 EID.BoCSLockMode = 0
+EID.BoCSLangMode = 0
 local game = Game()
 local locked = false
 
@@ -28,6 +29,8 @@ local function sanitizeName(name)
     return sanitized
 end
 
+require("eid_bagofcrafting_search_kr")
+
 
 --- Returns the current search query
 -- @param newValue new search query
@@ -43,8 +46,23 @@ end
 --- Returns the current search query
 -- @return string
 function EID:BoCSGetSearchValue()
-	return searchValue
+	local s = searchValue
+	for _, callbackData in pairs(Isaac.GetCallbacks("EIDCallbacks.SEARCH_NAME_CONVERSION")) do
+		if callbackData.Param == EID:getLanguage() then
+			local newString = callbackData.Function(callbackData.Mod, callbackData.Param, s)
+			if newString and type(newString) == "string" then
+				s = newString
+			end
+		end
+	end
+	return s
 end
+
+EID:AddCallback("EIDCallbacks.SEARCH_NAME_CONVERSION", function (_, lang, string)
+	if EID.BoCSLangMode == 1 then
+		return EID.engToKor(string)
+	end
+end, "ko_kr")
 
 function EID:BoCSGetLocked()
 	return locked
@@ -96,6 +114,7 @@ end
 --- Returns true if the item name is matched
 -- @returns boolean
 function EID:BoCSCheckItemName(itemName, englishName)
+	local searchValue = EID:BoCSGetSearchValue()
 	if searchValue == "" then
 		return true
 	end
@@ -139,6 +158,13 @@ local function handleSearchInput()
 		if hasLetterInput then
 			return
 		end
+	end
+
+	-- Change search language mode (current <> english) when del key is pressed
+	-- TODO: make this a modifiable hotkey
+	if Input.IsButtonTriggered(Keyboard.KEY_DELETE, EID.bagPlayer.ControllerIndex, true) then
+		EID.BoCSLangMode = EID.BoCSLangMode == 1 and 0 or 1
+		return
 	end
 
 	if Input.IsButtonTriggered(Keyboard.KEY_BACKSPACE, EID.bagPlayer.ControllerIndex, true) then
@@ -218,8 +244,9 @@ function EID:BoCSGetSearchLine()
 	if searchInputEnabled then
 		result = result .. "{{ColorLime}}"
 	end
+	-- TODO: indicator for search language mode
 	local searchDescription = EID:getDescriptionEntry("CraftingSearch")
-	result = result .. searchDescription .. " " .. searchValue
+	result = result .. searchDescription .. " " .. EID:BoCSGetSearchValue() .. "("..searchValue..")"
 
 	if EID.BoCSLockMode == 0 and EID:BoCSGetLocked() then
 		result = result .. "{{Trinket159}}"

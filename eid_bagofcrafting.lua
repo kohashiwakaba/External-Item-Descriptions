@@ -1216,8 +1216,11 @@ function EID:handleBagOfCraftingRendering(ignoreRefreshRate)
 	for _,id in ipairs(sortedIDs) do
 		filteredRecipesList[id] = {}
 		-- Filter out item names that don't match our search term
-		local itemName = EID:getDescriptionData(5, 100, id)[2];
-		local englishName = EID:getDescriptionDataEnglish(5, 100, id)[2];
+		local origName = EID.itemConfig:GetCollectible(id).Name
+		local descData = EID:getDescriptionData(5, 100, id)
+		local itemName = descData and descData[2] or origName;
+		local englishData = EID:getDescriptionDataEnglish(5, 100, id);
+		local englishName = englishData and englishData[2] or origName;
 		local searchValid = not EID:BoCSGetSearchEnabled() or EID:BoCSCheckItemName(itemName, englishName)
 		if (searchValid) then
 			-- If we aren't Tainted Cain, we should filter out recipes that don't use everything in our bag
