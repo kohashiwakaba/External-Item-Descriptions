@@ -238,7 +238,7 @@ local function BlackFeatherCallback(descObj)
 		end
 		
 		local hasBox = player:HasCollectible(439)
-		local isGolden = EID.isRepentance and ((descObj.ObjSubType & TrinketType.TRINKET_GOLDEN_FLAG) == TrinketType.TRINKET_GOLDEN_FLAG)
+		local isGolden = (EID.isRepentance and ((descObj.ObjSubType & TrinketType.TRINKET_GOLDEN_FLAG) == TrinketType.TRINKET_GOLDEN_FLAG)) or (EID.isRepentancePlus and EID:PlayerHasPillEffect(player, PillEffect.PILLEFFECT_GULP, true))
 		local base = EID.isRepentance and 0.5 or 0.2
 		local damageMultiplied = base * itemCounter * (hasBox and 2 or 1) * (isGolden and 2 or 1)
 		local dmgColor = itemCounter == 0 and "CR" or (hasBox or isGolden) and "ColorGold" or "BlinkGray"
@@ -1255,7 +1255,7 @@ if EID.isRepentance then
 		-- Trinket Callbacks
 		elseif descObj.ObjVariant == PickupVariant.PICKUP_TRINKET then
 			-- Golden Trinket / Mom's Box
-			isGolden = ((descObj.ObjSubType & TrinketType.TRINKET_GOLDEN_FLAG) == TrinketType.TRINKET_GOLDEN_FLAG)
+			isGolden = ((descObj.ObjSubType & TrinketType.TRINKET_GOLDEN_FLAG) == TrinketType.TRINKET_GOLDEN_FLAG) or (EID.isRepentancePlus and EID:PlayersHavePillEffect(PillEffect.PILLEFFECT_GULP, true))
 			hasBox = EID.collectiblesOwned[439]
 			if isGolden or hasBox then table.insert(callbacks, GoldenTrinketCallback) end
 		end
