@@ -1811,18 +1811,19 @@ end
 ---@param horse? boolean @If nil, don't check if the effect is horse or not, otherwise check for (non-)horse only
 ---@return boolean, EntityPlayer?, integer?
 function EID:PlayerHasPillEffect(player, pillID, horse)
+	if not EID.isRepentance then horse = nil end
 	local playerNum = EID:getPlayerID(player, true)
 	local pool = game:GetItemPool()
 	for j = 0, (EID.isRepentance and 3 or 1) do
 		local pill = player:GetPill(j)
 		if pill then
-			local basePill = pill % PillColor.PILL_GIANT_FLAG
+			local basePill = EID.isRepentance and pill % PillColor.PILL_GIANT_FLAG or pill
 			local identified = pool:IsPillIdentified(pill) and not EID.Config["OnlyShowPillWhenUsedAtLeastOnce"]
 			local wasUsed = EID:WasPillUsed(basePill)
 			-- identify check is used as this check for descriptions
 			local isAvailable = (identified or wasUsed or EID.Config["ShowUnidentifiedPillDescriptions"]) and not EID.UnidentifyablePillEffects[basePill]
 			if horse == nil or (horse == true and pill >= PillColor.PILL_GIANT_FLAG) or (horse == false and pill < PillColor.PILL_GIANT_FLAG) then
-				local effect = pool:GetPillEffect(pill, player)
+				local effect = EID.isRepentance and pool:GetPillEffect(pill, player) or  pool:GetPillEffect(pill)
 				if effect == pillID and isAvailable then
 					return true, player, playerNum
 				end
