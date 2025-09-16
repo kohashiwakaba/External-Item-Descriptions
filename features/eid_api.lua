@@ -1793,6 +1793,45 @@ function EID:PlayerHasPill(player, pillID)
 	return false
 end
 
+---Returns true, if any player has a given pill by effect
+---@param pillID PillEffect
+---@param horse? boolean @If nil, don't check if the effect is horse or not, otherwise check for (non-)horse only
+---@return boolean, EntityPlayer?
+function EID:PlayersHavePillEffect(pillID, horse)
+	for i = 0, game:GetNumPlayers() - 1 do
+		local player = Isaac.GetPlayer(i)
+		return EID:PlayerHasPillEffect(player, pillID, horse)
+	end
+	return false
+end
+
+---Returns true, if the player has a given pill by effect
+---@param player EntityPlayer
+---@param pillID PillEffect
+---@param horse? boolean @If nil, don't check if the effect is horse or not, otherwise check for (non-)horse only
+---@return boolean, EntityPlayer?, integer?
+function EID:PlayerHasPillEffect(player, pillID, horse)
+	local playerNum = EID:getPlayerID(player, true)
+	local pool = game:GetItemPool()
+	for j = 0, (EID.isRepentance and 3 or 1) do
+		local pill = player:GetPill(j)
+		if pill then
+			local basePill = pill % PillColor.PILL_GIANT_FLAG
+			local identified = pool:IsPillIdentified(pill) and not EID.Config["OnlyShowPillWhenUsedAtLeastOnce"]
+			local wasUsed = EID:WasPillUsed(basePill)
+			-- identify check is used as this check for descriptions
+			local isAvailable = (identified or wasUsed or EID.Config["ShowUnidentifiedPillDescriptions"]) and not EID.UnidentifyablePillEffects[basePill]
+			if horse == nil or (horse == true and pill >= PillColor.PILL_GIANT_FLAG) or (horse == false and pill < PillColor.PILL_GIANT_FLAG) then
+				local effect = pool:GetPillEffect(pill, player)
+				if effect == pillID and isAvailable then
+					return true, player, playerNum
+				end
+			end
+		end
+	end
+	return false
+end
+
 ---Checks if someone is playing as a certain character, for modifiers
 ---@param playerType PlayerType
 ---@param includeTainted? boolean @If true, doesn't care if the player is tainted or not
