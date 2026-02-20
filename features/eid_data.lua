@@ -928,6 +928,7 @@ if EID.isRepentancePlus then
 	EID.GoldenTrinketData[49] = 25 -- Bloody Penny
 	EID.GoldenTrinketData[50] = 25 -- Burnt Penny
 	EID.GoldenTrinketData[51] = 25 -- Flat Penny
+	EID.GoldenTrinketData[59] = 25 -- Cain's Eye
 	EID.GoldenTrinketData[60] = {t={5}} -- Eve's Bird Foot
 	EID.GoldenTrinketData[67] = {t={50}, mults={1.5,2}} -- Cracked Dice
 	EID.GoldenTrinketData[79] = {t={25}, mults={1.32,2}} -- Endless Nameless
