@@ -1016,8 +1016,7 @@ function EID:getPillName(pillID, isHorsepill)
 	local moddedDesc = EID:getDescriptionEntry("custom", "5.70."..pillID)
 	local legacyModdedDescription = EID:getLegacyModDescription(5, 70, pillID)
 	local tableName = isHorsepill and "horsepills" or "pills"
-	local translatedName = EID.ItemNames[EID:getLanguage()]["5.70."..pillID]
-	local defaultDesc = translatedName or EID:getDescriptionEntry(tableName, pillID)
+	local defaultDesc = EID:getDescriptionEntry(tableName, pillID)
 
 	local name = moddedDesc or legacyModdedDescription or defaultDesc
 
@@ -1025,10 +1024,16 @@ function EID:getPillName(pillID, isHorsepill)
 	if pillID == 9999 then
 		vanillaName = "Golden Pill" -- only used for languages that haven't defined a Golden Pill name
 	else
-		vanillaName = EID.itemConfig:GetPillEffect(pillID - 1).Name
+		if EID.itemConfig:GetPillEffect(pillID - 1) == nil then
+			return "<INVALID PILL ID>"
+		else
+			vanillaName = EID.itemConfig:GetPillEffect(pillID - 1).Name
+		end
 	end
-	name = name and name[2] or (not string.find(vanillaName, "^#") and vanillaName) or EID.descriptions[EID.DefaultLanguageCode][tableName][pillID][2] or vanillaName
+	local translatedName = EID.ItemNames[EID:getLanguage()]["5.70."..pillID-1]
+	name = name and name[2] or translatedName or (not string.find(vanillaName, "^#") and vanillaName) or EID.descriptions[EID.DefaultLanguageCode][tableName][pillID][2] or vanillaName
 	name = string.gsub(name,"I'm Excited!!!","I'm Excited!!") -- prevent markup trigger
+
 	return name
 end
 
