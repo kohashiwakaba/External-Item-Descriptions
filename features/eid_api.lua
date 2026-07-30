@@ -522,10 +522,15 @@ end
 ---Overrides all potentially displayed texts and permanently displays the given texts
 ---@see EID.hidePermanentText @Hides permanently displayed text object.
 ---@param descriptionObject EID_DescObj @Description object to display
----@param permName1 string
+---@param permName1 string? @Can be nil outside of EID
 ---@param permName2 string?
 function EID:displayPermanentText(descriptionObject, permName1, permName2)
-	descriptionObject.Name = EID:getDescriptionEntryEnglish(permName1, permName2)
+	if permName1 then
+		-- permName1 can be nil if the function is called outside of EID
+		-- To make config option "TranslateItemName" work in all usecases, override Name with this
+		-- Only override Name field when permName1 is present, to prevent name being completely not showing outside of Item Reminder, Dice rooms or other features
+		descriptionObject.Name = EID:getDescriptionEntryEnglish(permName1, permName2)
+	end
 	EID.permanentDisplayTextObj = descriptionObject
 	EID.isDisplayingPermanent = true
 end
